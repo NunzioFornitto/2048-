@@ -55,6 +55,7 @@ const AppContent = () => {
     const mounted = useRef(true);
     const tilesRef = useRef([]);
     const touchStart = useRef(null);
+    const isMoving = useRef(false);
 
     // --- SAFE LOAD ---
     useEffect(() => {
@@ -200,18 +201,23 @@ const AppContent = () => {
     };
 
     const startGame = (m, s) => {
-        audio.init();
-        const t1 = { id: generateId(), val: 2, r: Math.floor(Math.random() * s), c: Math.floor(Math.random() * s) };
-        let t2 = { id: generateId(), val: 2, r: Math.floor(Math.random() * s), c: Math.floor(Math.random() * s) };
-        while (t1.r === t2.r && t1.c === t2.c) t2 = { r: Math.floor(Math.random() * s), c: Math.floor(Math.random() * s) };
-        const st = [t1, t2];
-        setTiles(st); tilesRef.current = st;
-        setScore(0); setGameOver(false); setMode(m); setGameSize(s);
-        setTimeLeft(TIME_ATTACK_START); setBursts([]); setIsBombing(false); setShowPowerupInfo(false); setShowModeInfo(false); setNotification(null);
-        setStats(p => ({ ...p, gamesPlayed: p.gamesPlayed + 1 }));
-        setStartTime(Date.now()); setCombo(1);
-        setView('game');
-        saveGame(st, 0, m, s, TIME_ATTACK_START);
+        try {
+            audio.init();
+            const t1 = { id: generateId(), val: 2, r: Math.floor(Math.random() * s), c: Math.floor(Math.random() * s) };
+            let t2 = { id: generateId(), val: 2, r: Math.floor(Math.random() * s), c: Math.floor(Math.random() * s) };
+            while (t1.r === t2.r && t1.c === t2.c) t2 = { r: Math.floor(Math.random() * s), c: Math.floor(Math.random() * s) };
+            const st = [t1, t2];
+            setTiles(st); tilesRef.current = st;
+            setScore(0); setGameOver(false); setMode(m); setGameSize(s);
+            setTimeLeft(TIME_ATTACK_START); setBursts([]); setIsBombing(false); setShowPowerupInfo(false); setShowModeInfo(false); setNotification(null);
+            setStats(p => ({ ...p, gamesPlayed: p.gamesPlayed + 1 }));
+            setStartTime(Date.now()); setCombo(1);
+            isMoving.current = false; // Reset moving flag
+            setView('game');
+            saveGame(st, 0, m, s, TIME_ATTACK_START);
+        } catch (e) {
+            console.error('Error in startGame:', e);
+        }
     };
 
     const resumeGame = (gd) => {
@@ -220,6 +226,7 @@ const AppContent = () => {
         setGameSize(gd.size || 4); setTimeLeft(gd.timeLeft || TIME_ATTACK_START);
         tilesRef.current = gd.tiles || []; setGameOver(false); setIsBombing(false); setShowPowerupInfo(false); setShowModeInfo(false); setNotification(null);
         setStartTime(Date.now()); setCombo(1);
+        isMoving.current = false; // Reset moving flag
         setView('game');
     };
 
@@ -234,44 +241,182 @@ const AppContent = () => {
 
     const move = useCallback((dir) => {
         if (gameOver || isBombing || isMoving.current) return;
-        audio.init();
+        // audio.init(); // Removed to prevent audio context issues on rapid moves, handled in effects
 
         const current = [...tilesRef.current];
-        let moved = false; let points = 0; let bigMerge = false;
-        const sorted = current.sort((a, b) => {
-            if (dir === 'up') return a.r - b.r;
-            if (dir === 'down') return b.r - a.r;
-            if (dir === 'left') return a.c - b.c;
-            return b.c - a.c;
-        });
-        const grid = Array(gameSize).fill().map(() => Array(gameSize).fill(null));
-        const nextTiles = sorted.map(t => ({ ...t, isMerged: false, isNew: false }));
+        let moved = false;
+        let points = 0;
+        let bigMerge = false;
 
-        nextTiles.forEach(tile => {
-            let { r, c } = tile;
-            let nextR = r, nextC = c;
-            while (true) {
-                let tr = nextR, tc = nextC;
-                if (dir === 'up') tr--; else if (dir === 'down') tr++; else if (dir === 'left') tc--; else tc++;
-                if (tr < 0 || tr >= gameSize || tc < 0 || tc >= gameSize) break;
-                if (grid[tr][tc] && !grid[tr][tc].isMerged && grid[tr][tc].val === tile.val) {
-                    const target = grid[tr][tc]; target.val *= 2; target.isMerged = true;
-                    points += target.val; tile.toDelete = true; tile.r = tr; tile.c = tc;
-                    if (target.val >= 32) bigMerge = true; moved = true; return;
-                } else if (grid[tr][tc]) break;
-                nextR = tr; nextC = tc;
+        // Create grid
+        const grid = Array(gameSize).fill().map(() => Array(gameSize).fill(null));
+        current.forEach(t => { grid[t.r][t.c] = { ...t, merged: false, isNew: false, isMerged: false }; });
+
+        // Move and merge
+        const traverseRows = dir === 'down'
+            ? Array.from({ length: gameSize }, (_, i) => gameSize - 1 - i)
+            : Array.from({ length: gameSize }, (_, i) => i);
+
+        const traverseCols = dir === 'right'
+            ? Array.from({ length: gameSize }, (_, i) => gameSize - 1 - i)
+            : Array.from({ length: gameSize }, (_, i) => i);
+
+        const nextTiles = [];
+        const mergedIds = new Set();
+
+        for (const i of traverseRows) {
+            for (const j of traverseCols) {
+                if (grid[i][j]) {
+                    const tile = grid[i][j];
+                    grid[i][j] = null;
+
+                    let r = i, c = j;
+                    let mergedInto = false;
+
+                    // Move tile as far as possible
+                    if (dir === 'left') {
+                        while (c > 0) {
+                            if (grid[r][c - 1] === null) {
+                                c--;
+                                moved = true;
+                            } else if (grid[r][c - 1].val === tile.val && !grid[r][c - 1].merged && !tile.merged) {
+                                // MERGE
+                                const target = grid[r][c - 1];
+                                target.pendingVal = target.val * 2; // Set pending value
+                                target.merged = true;
+                                points += target.pendingVal;
+                                if (target.pendingVal >= 32) bigMerge = true;
+                                moved = true;
+                                mergedInto = true;
+
+                                // Mark current tile for deletion but keep it for animation
+                                tile.toDelete = true;
+                                tile.r = r;
+                                tile.c = c - 1; // Move to target position
+                                nextTiles.push(tile);
+                                break;
+                            } else {
+                                break;
+                            }
+                        }
+                    } else if (dir === 'right') {
+                        while (c < gameSize - 1) {
+                            if (grid[r][c + 1] === null) {
+                                c++;
+                                moved = true;
+                            } else if (grid[r][c + 1].val === tile.val && !grid[r][c + 1].merged && !tile.merged) {
+                                // MERGE
+                                const target = grid[r][c + 1];
+                                target.pendingVal = target.val * 2;
+                                target.merged = true;
+                                points += target.pendingVal;
+                                if (target.pendingVal >= 32) bigMerge = true;
+                                moved = true;
+                                mergedInto = true;
+
+                                tile.toDelete = true;
+                                tile.r = r;
+                                tile.c = c + 1;
+                                nextTiles.push(tile);
+                                break;
+                            } else {
+                                break;
+                            }
+                        }
+                    } else if (dir === 'up') {
+                        while (r > 0) {
+                            if (grid[r - 1][c] === null) {
+                                r--;
+                                moved = true;
+                            } else if (grid[r - 1][c].val === tile.val && !grid[r - 1][c].merged && !tile.merged) {
+                                // MERGE
+                                const target = grid[r - 1][c];
+                                target.pendingVal = target.val * 2;
+                                target.merged = true;
+                                points += target.pendingVal;
+                                if (target.pendingVal >= 32) bigMerge = true;
+                                moved = true;
+                                mergedInto = true;
+
+                                tile.toDelete = true;
+                                tile.r = r - 1;
+                                tile.c = c;
+                                nextTiles.push(tile);
+                                break;
+                            } else {
+                                break;
+                            }
+                        }
+                    } else if (dir === 'down') {
+                        while (r < gameSize - 1) {
+                            if (grid[r + 1][c] === null) {
+                                r++;
+                                moved = true;
+                            } else if (grid[r + 1][c].val === tile.val && !grid[r + 1][c].merged && !tile.merged) {
+                                // MERGE
+                                const target = grid[r + 1][c];
+                                target.pendingVal = target.val * 2;
+                                target.merged = true;
+                                points += target.pendingVal;
+                                if (target.pendingVal >= 32) bigMerge = true;
+                                moved = true;
+                                mergedInto = true;
+
+                                tile.toDelete = true;
+                                tile.r = r + 1;
+                                tile.c = c;
+                                nextTiles.push(tile);
+                                break;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!mergedInto) {
+                        tile.r = r;
+                        tile.c = c;
+                        grid[r][c] = tile;
+                        nextTiles.push(tile);
+                    }
+                }
             }
-            if (nextR !== r || nextC !== c) moved = true;
-            tile.r = nextR; tile.c = nextC;
-            grid[nextR][nextC] = tile;
-        });
+        }
+
+        // Add merged targets to nextTiles if not already added (they are in grid)
+        for (let r = 0; r < gameSize; r++) {
+            for (let c = 0; c < gameSize; c++) {
+                if (grid[r][c]) {
+                    // Check if this tile was already added (it shouldn't be if we cleared grid cells as we moved, but we put them back)
+                    // Actually, we only put non-merged tiles back or updated ones. 
+                    // The logic above: if not mergedInto, we put back in grid AND pushed to nextTiles.
+                    // Wait, if we put it back in grid, we might process it again? 
+                    // No, we iterate traverseRows/Cols which visits each cell once.
+                    // BUT, we need to make sure we don't double count.
+                    // The `nextTiles` array is accumulating tiles as we process.
+                    // If we mergedInto, we pushed the *source* tile as toDelete. The *target* tile is still in `grid`.
+                    // So we need to collect the tiles remaining in `grid`.
+                }
+            }
+        }
+
+        // Re-collect from grid to ensure we have the final state of all tiles (targets and moved non-merged)
+        // The previous loop pushed `toDelete` tiles. We need to combine those with the tiles currently in `grid`.
+        const finalNextTiles = [...nextTiles.filter(t => t.toDelete)];
+        for (let r = 0; r < gameSize; r++) {
+            for (let c = 0; c < gameSize; c++) {
+                if (grid[r][c]) {
+                    finalNextTiles.push(grid[r][c]);
+                }
+            }
+        }
 
         if (!moved) return;
         isMoving.current = true;
         if (bigMerge) { audio.playFirework(); haptic.medium(); setBursts(p => [...p, Date.now()]); setTimeout(() => setBursts(b => b.slice(1)), 3000); }
         else { audio.playMove(); haptic.light(); }
 
-        setTiles(nextTiles);
+        setTiles(finalNextTiles);
         setStats(s => ({ ...s, totalMoves: s.totalMoves + 1 }));
 
         if (mode === 'time_attack' && points > 0) {
@@ -284,9 +429,18 @@ const AppContent = () => {
         }
 
         setTimeout(() => {
-            if (!mounted.current) { isMoving.current = false; return; }
             try {
-                let final = nextTiles.filter(t => !t.toDelete).map(t => ({ ...t, isMerged: false }));
+                // Cleanup: Remove deleted tiles, update values, reset merge flags
+                let final = finalNextTiles
+                    .filter(t => !t.toDelete)
+                    .map(t => ({
+                        ...t,
+                        val: t.pendingVal || t.val, // Update to new value
+                        pendingVal: undefined,
+                        isMerged: !!t.pendingVal, // Trigger pop animation if it was a merge
+                        merged: false // Reset internal logic flag
+                    }));
+
                 final = addTile(final);
                 setTiles(final); tilesRef.current = final;
                 const newScore = score + points; setScore(newScore);

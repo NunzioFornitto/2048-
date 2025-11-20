@@ -143,3 +143,17 @@ console.log('Test 3 (Down):', JSON.stringify(r3));
 // Test Case 4: Column [2, 2, 2, 2] Up -> [4, 4, 0, 0]
 const r4 = move('up', t3);
 console.log('Test 4 (Up):', JSON.stringify(r4));
+
+// Test Case 5: [8, 8, 16, 16] Right -> [0, 0, 16, 32]
+const t5 = [
+    { val: 8, r: 0, c: 0 }, { val: 8, r: 0, c: 1 }, { val: 16, r: 0, c: 2 }, { val: 16, r: 0, c: 3 }
+];
+const r5 = move('right', t5);
+console.log('Test 5 (8s and 16s Right):', JSON.stringify(r5));
+
+// Test Case 6: [4, 4, 8, 8] Left -> [8, 16, 0, 0]
+const t6 = [
+    { val: 4, r: 0, c: 0 }, { val: 4, r: 0, c: 1 }, { val: 8, r: 0, c: 2 }, { val: 8, r: 0, c: 3 }
+];
+const r6 = move('left', t6);
+console.log('Test 6 (4s and 8s Left):', JSON.stringify(r6));
