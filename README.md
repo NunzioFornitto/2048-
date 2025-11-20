@@ -234,7 +234,7 @@ La schermata di avvio del gioco con le opzioni principali:
 - **Trofei**: Controlla i trofei sbloccati
 - **Opzioni**: Regola le impostazioni
 
-![Schermata Principale](./screenshots/main_menu.png)
+![Schermata Principale](./screenshots/Screenshot%202025-11-20%20153642.png)
 
 ### Selezione Dimensione Griglia
 Scegli la dimensione della griglia prima di iniziare:
@@ -245,7 +245,7 @@ Scegli la dimensione della griglia prima di iniziare:
 
 Disponibile per tutte e 3 le modalità (Classica, Time Attack, Zen).
 
-![Selezione Dimensione](./screenshots/grid_selection.png)
+![Selezione Dimensione](./screenshots/Screenshot%202025-11-20%20153653.png)
 
 ### Guida Power-up
 Un modal informativo che spiega i tre power-up disponibili:
@@ -253,7 +253,7 @@ Un modal informativo che spiega i tre power-up disponibili:
 - 🔄 **Shuffle**: Mescola la griglia
 - ⬆️ **Boost**: Raddoppia una tessera
 
-![Guida Power-up](./screenshots/powerup_guide.png)
+![Guida Power-up](./screenshots/Screenshot%202025-11-20%20153708.png)
 
 ### Gameplay
 Partita in corso con:
@@ -262,7 +262,7 @@ Partita in corso con:
 - Icone per power-up, trofei e opzioni nella barra superiore
 - Tessere da 2 fino a valori più alti
 
-![Gameplay](./screenshots/gameplay.png)
+![Gameplay](./screenshots/Screenshot%202025-11-20%20153725.png)
 
 ### Trofei e Obiettivi
 Visualizza tutti i 9 trofei sbloccabili:
@@ -275,9 +275,9 @@ Visualizza tutti i 9 trofei sbloccabili:
 
 Scorri per vedere tutti gli obiettivi!
 
-![Trofei](./screenshots/trophies.png)
+![Trofei](./screenshots/Screenshot%202025-11-20%20153737.png)
 
-### Negozio Temi
+### Negozio Temi e Impostazioni
 Sblocca e acquista 7 temi unici:
 - 🟩 **Classico**: SBLOCCATO (Gratis)
 - 🎃 **Halloween**: 1000 punti
@@ -287,16 +287,13 @@ Sblocca e acquista 7 temi unici:
 - 🍂 **Autunno**: 2000 punti
 - ❄️ **Inverno**: 1500 punti
 
-![Temi](./screenshots/shop_themes.png)
-
-### Impostazioni
 Personalizza l'esperienza di gioco:
 - 🌓 **Tema**: Attiva il tema scuro/chiaro
 - 🔊 **Audio**: Abilita/disabilita gli effetti sonori
 - 📳 **Vibrazione**: Attiva/disattiva il feedback tattile
 - 🔉 **Volume**: Regola il livello audio (slider 0-100%)
 
-![Impostazioni](./screenshots/settings.png)
+![Temi e Impostazioni](./screenshots/Screenshot%202025-11-20%20153752.png)
 
 ---
 
