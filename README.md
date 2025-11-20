@@ -222,6 +222,84 @@ Nel gioco puoi tracciare:
 
 ---
 
+## 📸 Screenshots
+
+### Schermata Principale
+La schermata di avvio del gioco con le opzioni principali:
+- **Nuova Partita**: Inizia una nuova partita
+- **Continua**: Riprendi la partita in corso
+- **Shop**: Acquista temi e power-up
+- **Temi**: Personalizza l'aspetto del gioco
+- **Record**: Visualizza i tuoi progressi e statistiche
+- **Trofei**: Controlla i trofei sbloccati
+- **Opzioni**: Regola le impostazioni
+
+![Schermata Principale](./screenshots/main_menu.png)
+
+### Selezione Dimensione Griglia
+Scegli la dimensione della griglia prima di iniziare:
+- **3×3**: Difficoltà massima
+- **4×4**: Classico (Default)
+- **5×5**: Più spazio, meno stress
+- **6×6**: Extreme (per gli esperti)
+
+Disponibile per tutte e 3 le modalità (Classica, Time Attack, Zen).
+
+![Selezione Dimensione](./screenshots/grid_selection.png)
+
+### Guida Power-up
+Un modal informativo che spiega i tre power-up disponibili:
+- 🔫 **Bomba**: Distruggi una tessera
+- 🔄 **Shuffle**: Mescola la griglia
+- ⬆️ **Boost**: Raddoppia una tessera
+
+![Guida Power-up](./screenshots/powerup_guide.png)
+
+### Gameplay
+Partita in corso con:
+- Griglia 4×4 con tessere
+- Punteggio corrente in alto a destra
+- Icone per power-up, trofei e opzioni nella barra superiore
+- Tessere da 2 fino a valori più alti
+
+![Gameplay](./screenshots/gameplay.png)
+
+### Trofei e Obiettivi
+Visualizza tutti i 9 trofei sbloccabili:
+- 🟡 **Novizio**: 512 (Shuffle)
+- 🏆 **Pro**: 1024 (Bomba)
+- 👑 **Veterano**: 2048 (Boost)
+- 👑 **Il Re**: 4096 (2× Power-up)
+- 🔥 **Imperatore**: 8192 (3× Power-up)
+- E altri per Time Attack, Zen e griglie speciali
+
+Scorri per vedere tutti gli obiettivi!
+
+![Trofei](./screenshots/trophies.png)
+
+### Negozio Temi
+Sblocca e acquista 7 temi unici:
+- 🟩 **Classico**: SBLOCCATO (Gratis)
+- 🎃 **Halloween**: 1000 punti
+- ❄️ **Natale**: 1500 punti
+- 🌸 **Primavera**: 2000 punti
+- ☀️ **Estate**: 2500 punti
+- 🍂 **Autunno**: 2000 punti
+- ❄️ **Inverno**: 1500 punti
+
+![Temi](./screenshots/shop_themes.png)
+
+### Impostazioni
+Personalizza l'esperienza di gioco:
+- 🌓 **Tema**: Attiva il tema scuro/chiaro
+- 🔊 **Audio**: Abilita/disabilita gli effetti sonori
+- 📳 **Vibrazione**: Attiva/disattiva il feedback tattile
+- 🔉 **Volume**: Regola il livello audio (slider 0-100%)
+
+![Impostazioni](./screenshots/settings.png)
+
+---
+
 ## 📝 Note
 
 - Ogni sessione di gioco è indipendente (puoi avere una partita in corso per ogni modalità)
