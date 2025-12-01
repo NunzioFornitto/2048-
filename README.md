@@ -4,7 +4,7 @@ Una versione moderna e ricca di funzionalità del classico gioco 2048, costruito
 
 ## 📋 Sommario
 
-- [Come Giocare](#-come-giocare)
+- [Come Giocare](#-come-giocare) 
 - [Modalità di Gioco](#-modalità-di-gioco)
 - [Power-up](#-power-up)
 - [Temi e Personalizzazione](#-temi-e-personalizzazione)
