@@ -14,7 +14,7 @@ function move(dir, tiles) {
     // Move and merge
     const traverseRows = dir === 'down'
         ? Array.from({ length: gameSize }, (_, i) => gameSize - 1 - i)
-        : Array.from({ length: gameSize }, (_, i) => i);
+        : Array.from({ length: gameSize }, (_, i) => i);  
 
     const traverseCols = dir === 'right'
         ? Array.from({ length: gameSize }, (_, i) => gameSize - 1 - i)
@@ -87,11 +87,11 @@ function move(dir, tiles) {
                             r++;
                             moved = true;
                         } else if (grid[r + 1][c].val === tile.val && !grid[r + 1][c].merged && !tile.merged) {
-                            grid[r + 1][c].val *= 2;
+                            grid[r + 1][c].val *= 2;   
                             grid[r + 1][c].merged = true;
                             points += grid[r + 1][c].val;
                             if (grid[r + 1][c].val >= 32) bigMerge = true;
-                            moved = true;
+                            moved = true;  
                             mergedInto = true;
                             break;
                         } else {
